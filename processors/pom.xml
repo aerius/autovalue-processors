@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>nl.overheid.aerius</groupId>
+    <artifactId>autovalue-processors-parent</artifactId>
+    <version>1.1-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>autovalue-processors</artifactId>
+  <packaging>jar</packaging>
+
+  <name>autovalue-processors :: processors</name>
+
+  <properties>
+    <auto-service.version>1.0-rc6</auto-service.version>
+    <auto-value.version>1.7</auto-value.version>
+    <micronaut.version>1.2.2</micronaut.version>
+    <spring-boot.version>2.3.1.RELEASE</spring-boot.version>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>io.micronaut</groupId>
+        <artifactId>micronaut-bom</artifactId>
+        <version>${micronaut.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <dependencies>
+    <dependency>
+      <groupId>io.micronaut</groupId>
+      <artifactId>micronaut-inject</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.micronaut</groupId>
+      <artifactId>micronaut-validation</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.micronaut</groupId>
+      <artifactId>micronaut-runtime</artifactId>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>nl.overheid.aerius</groupId>
+      <artifactId>autovalue-annotations</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.auto.value</groupId>
+      <artifactId>auto-value-annotations</artifactId>
+      <version>${auto-value.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>28.2-jre</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.gwt</groupId>
+      <artifactId>gwt-user</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>nl.overheid.aerius</groupId>
+      <artifactId>gwt-client-common-json</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot</artifactId>
+      <version>${spring-boot.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.auto.service</groupId>
+      <artifactId>auto-service-annotations</artifactId>
+      <version>${auto-service.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.auto</groupId>
+      <artifactId>auto-common</artifactId>
+      <version>0.10</version>
+    </dependency>
+    <dependency>
+      <groupId>com.squareup</groupId>
+      <artifactId>javapoet</artifactId>
+      <version>1.11.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.testing.compile</groupId>
+      <artifactId>compile-testing</artifactId>
+      <version>0.18</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.truth</groupId>
+      <artifactId>truth</artifactId>
+      <version>0.42</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>buildnumber-maven-plugin</artifactId>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <goals>
+              <goal>jar-no-fork</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <annotationProcessorPaths>
+            <path>
+              <groupId>com.google.auto.service</groupId>
+              <artifactId>auto-service</artifactId>
+              <version>${auto-service.version}</version>
+            </path>
+          </annotationProcessorPaths>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <filters>
+                <filter>
+                  <artifact>nl.overheid.aerius:gwt-client-common-json</artifact>
+                  <includes>
+                    <include>**</include>
+                  </includes>
+                </filter>
+                <filter>
+                  <artifact>com.google.gwt:gwt-user</artifact>
+                  <includes>
+                    <include>com/google/gwt/json/client/**</include>
+                    <include>com/google/gwt/http/client/**</include>
+                    <include>com/google/gwt/user/client/rpc/AsyncCallback**</include>
+                  </includes>
+                </filter>
+              </filters>
+              <artifactSet>
+                <includes>
+                  <include>nl.overheid.aerius:gwt-client-common-json</include>
+                  <include>com.google.gwt:gwt-user</include>
+                  <include>com.google.guava:guava</include>
+                </includes>
+              </artifactSet>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
