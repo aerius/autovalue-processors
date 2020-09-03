@@ -21,14 +21,9 @@
 
   <repositories>
     <repository>
-      <id>aerius-nexus-releases</id>
-      <name>AERIUS Nexus repository - Releases</name>
-      <url>https://nexus.aerius.nl/repository/maven-releases/</url>
-    </repository>
-    <repository>
-      <id>aerius-nexus-snapshots</id>
-      <name>AERIUS Nexus repository - Snapshots</name>
-      <url>https://nexus.aerius.nl/repository/maven-snapshots/</url>
+      <id>aerius-nexus-public</id>
+      <name>AERIUS Nexus repository</name>
+      <url>https://nexus.aerius.nl/repository/maven-public/</url>
     </repository>
   </repositories>
 
