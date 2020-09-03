@@ -7,7 +7,18 @@
   <packaging>pom</packaging>
 
   <name>autovalue-processors</name>
-  
+
+  <distributionManagement>
+    <repository>
+      <id>aerius-nexus</id>
+      <url>https://nexus.aerius.nl/repository/maven-releases/</url>
+    </repository>
+    <snapshotRepository>
+      <id>aerius-nexus</id>
+      <url>https://nexus.aerius.nl/repository/maven-snapshots/</url>
+    </snapshotRepository>
+  </distributionManagement>
+
   <properties>
     <java.version>8</java.version>
     <gwt-client-common-json.version>1.0-SNAPSHOT</gwt-client-common-json.version>
