@@ -19,6 +19,19 @@
     </snapshotRepository>
   </distributionManagement>
 
+  <repositories>
+    <repository>
+      <id>aerius-nexus-releases</id>
+      <name>AERIUS Nexus repository - Releases</name>
+      <url>https://nexus.aerius.nl/repository/maven-releases/</url>
+    </repository>
+    <repository>
+      <id>aerius-nexus-snapshots</id>
+      <name>AERIUS Nexus repository - Snapshots</name>
+      <url>https://nexus.aerius.nl/repository/maven-snapshots/</url>
+    </repository>
+  </repositories>
+
   <properties>
     <java.version>8</java.version>
     <gwt-client-common-json.version>1.0-SNAPSHOT</gwt-client-common-json.version>
