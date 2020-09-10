@@ -20,7 +20,7 @@ For the shared project, add the `-parsers` and `-serializers` projects in the `<
       <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>nl.overheid.aerius</groupId>
+      <groupId>nl.aerius</groupId>
       <artifactId>autovalue-annotations-serializers</artifactId>
       <version>1.0</version>
       <optional>true</optional>
@@ -179,7 +179,7 @@ Given the shared project is named `nl.aerius:your-project-shared`, add the follo
 Add the following to the GWT Module:
 
 ```xml
-  <inherits name='nl.overheid.aerius.wui.parser.AutoValueParsers' />
+  <inherits name='nl.aerius.wui.parser.AutoValueParsers' />
 ```
 
 ### Service

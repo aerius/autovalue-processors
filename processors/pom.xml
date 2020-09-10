@@ -157,7 +157,7 @@
             <configuration>
               <filters>
                 <filter>
-                  <artifact>nl.overheid.aerius:gwt-client-common-json</artifact>
+                  <artifact>nl.aerius:gwt-client-common-json</artifact>
                   <includes>
                     <include>**</include>
                   </includes>
@@ -173,7 +173,7 @@
               </filters>
               <artifactSet>
                 <includes>
-                  <include>nl.overheid.aerius:gwt-client-common-json</include>
+                  <include>nl.aerius:gwt-client-common-json</include>
                   <include>com.google.gwt:gwt-user</include>
                   <include>com.google.guava:guava</include>
                 </includes>
