@@ -36,6 +36,7 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.MirroredTypesException;
@@ -490,10 +491,27 @@ public class JsonParserGeneratorStep implements ProcessingStep {
       break;
     }
 
-    bldr.addStatement(".forEach(v -> $LMap.put(v, $LObj.get$L(String.valueOf(v))))", method.getSimpleName(), method.getSimpleName(), valueType);
+    if (AutoValueGeneratorUtil.isList(types, elements, value)) {
+      handleListWithinMap(bldr, value, method.getSimpleName(), name);
+    } else {
+      bldr.addStatement(".forEach(v -> $LMap.put(v, $LObj.get$L(String.valueOf(v))))", method.getSimpleName(), method.getSimpleName(), valueType);
+    }
     bldr.unindent();
 
     bldr.addStatement("bldr.$L($L)", method.getSimpleName(), name);
+  }
+
+  private void handleListWithinMap(final CodeBlock.Builder bldr, final TypeMirror value,
+      final Name containingMap, final String mapToAddTo) {
+    final String name = "innerList";
+    final String arrayAccess = "$LObj.get(String.valueOf(v)).asArray()";
+    final String addPart = "$N.put(v, ";
+    final String addName = mapToAddTo;
+
+    bldr.beginControlFlow(".forEach(v -> ");
+
+    handleListType(bldr, value, name, arrayAccess, containingMap, addPart, addName);
+    bldr.endControlFlow(")");
   }
 
   private void handleEnum(final CodeBlock.Builder bldr, final ExecutableElement method) {
@@ -509,21 +527,30 @@ public class JsonParserGeneratorStep implements ProcessingStep {
   }
 
   private void handleListType(final CodeBlock.Builder bldr, final ExecutableElement method) {
-    final String listTypeName = ((TypeElement) types.asElement(types.erasure(method.getReturnType()))).getQualifiedName().toString();
+    final String name = method.getSimpleName() + "List";
+    final String arrayAccess = "result.get($S).asArray()";
+    final Name arrayAccessName = method.getSimpleName();
+    final String addPart = "bldr.$N(";
+    final String addPartName = method.getSimpleName().toString();
+    handleListType(bldr, method.getReturnType(), name, arrayAccess, arrayAccessName, addPart, addPartName);
+  }
+
+  private void handleListType(final CodeBlock.Builder bldr, final TypeMirror listTypeMirror, final String name,
+      final String arrayAccess, final Name arrayAccessName, final String addPart, final String addName) {
+    final String listTypeName = ((TypeElement) types.asElement(types.erasure(listTypeMirror))).getQualifiedName().toString();
     final TypeElement listCreator = listCreators.get(listTypeName);
     if (listCreator == null) {
       throw new IllegalStateException(
-          "Encountered list type without an initializer: " + method.getReturnType() + ". Please implement a @JsonListInitializer parsing this type.");
+          "Encountered list type without an initializer: " + listTypeMirror + ". Please implement a @JsonListInitializer parsing this type.");
     }
 
-    final DeclaredType listType = findListType(method.getReturnType());
+    final DeclaredType listType = findListType(listTypeMirror);
     if (listType == null) {
-      throw new RuntimeException("The impossible happened; list type of: " + method.getReturnType() + " could not be found.");
+      throw new RuntimeException("The impossible happened; list type of: " + listTypeMirror + " could not be found.");
     }
 
     final TypeMirror inner = listType.getTypeArguments().iterator().next();
 
-    final String name = method.getSimpleName() + "List";
     bldr.addStatement("final $T<$T> $L = new $T<>()", List.class, inner, name, ArrayList.class);
 
     final String simpleType = AutoValueGeneratorUtil.getSimpleParserType(inner);
@@ -533,13 +560,13 @@ public class JsonParserGeneratorStep implements ProcessingStep {
     case "Long":
     case "Number":
     case "String":
-      bldr.addStatement("result.get$NArray($S).forEach($L::add)", simpleType, method.getSimpleName(), name);
+      bldr.addStatement(arrayAccess + ".forEach$N($L::add)", arrayAccessName, simpleType, name);
       break;
     default:
-      bldr.addStatement("result.getArray($S).forEach(json -> $L.add($L))", method.getSimpleName(), name, generateComplexTypeParser(inner));
+      bldr.addStatement(arrayAccess + ".forEach(json -> $L.add($L))", arrayAccessName, name, generateComplexTypeParser(inner));
     }
 
-    bldr.addStatement("bldr.$N(($T) new $T().create($L))", method.getSimpleName(), method.getReturnType(), listCreator, name);
+    bldr.addStatement(addPart + "($T) new $T().create($L))", addName, listType, listCreator, name);
   }
 
   private CodeBlock generateComplexTypeParser(final TypeMirror type) {
@@ -599,7 +626,7 @@ public class JsonParserGeneratorStep implements ProcessingStep {
     if (types.erasure(type).equals(erasedListType)) {
       return (DeclaredType) type;
     }
-    
+
     final List<? extends TypeMirror> directSuperTypes = types.directSupertypes(type);
     if (directSuperTypes.isEmpty()) {
       return null;
