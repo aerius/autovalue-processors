@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
  
   <groupId>nl.aerius</groupId>
-  <version>1.0</version>
+  <version>1.1-SNAPSHOT</version>
   <artifactId>autovalue-processors-parent</artifactId>
   <packaging>pom</packaging>
 
