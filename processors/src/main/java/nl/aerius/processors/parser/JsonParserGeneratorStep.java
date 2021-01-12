@@ -21,6 +21,7 @@ import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -77,6 +78,7 @@ import nl.aerius.wui.parser.convenience.ArrayListInitializer;
 import nl.aerius.wui.parser.convenience.DefaultListInitializer;
 import nl.aerius.wui.parser.convenience.HashMapInitializer;
 import nl.aerius.wui.parser.convenience.ImmutableListInitializer;
+import nl.aerius.wui.parser.convenience.LinkedHashMapInitializer;
 import nl.aerius.wui.service.ForwardedAsyncCallback;
 import nl.aerius.wui.service.json.JSONObjectHandle;
 
@@ -222,6 +224,8 @@ public class JsonParserGeneratorStep implements ProcessingStep {
   private void initializeStandardMapCreators() {
     mapCreators.put(HashMap.class.getCanonicalName(),
         elements.getTypeElement(HashMapInitializer.class.getCanonicalName()));
+    mapCreators.put(LinkedHashMap.class.getCanonicalName(),
+        elements.getTypeElement(LinkedHashMapInitializer.class.getCanonicalName()));
   }
 
   private void handleJsonMapInitializer(final Element creator) {
@@ -454,9 +458,7 @@ public class JsonParserGeneratorStep implements ProcessingStep {
 
     final TypeElement mapCreator = mapCreators.get(mapTypeName);
     if (mapCreator == null) {
-      throw new IllegalStateException("Only HashMap is a supported map type for the moment.");
-//      throw new IllegalStateException(
-//          "Encountered map type without an initializer: " + method.getReturnType() + ". Please implement a @JsonMapInitializer parsing this type.");
+      throw new IllegalStateException("Only HashMap and LinkedHashMap is a supported map type for the moment.");
     }
 
     final Iterator<? extends TypeMirror> it = findMapType.getTypeArguments().iterator();
@@ -467,7 +469,7 @@ public class JsonParserGeneratorStep implements ProcessingStep {
     final String valueType = AutoValueGeneratorUtil.getSimpleParserType(value);
 
     final String name = method.getSimpleName() + "Map";
-    bldr.addStatement("final $T<$T, $T> $L = new $T<>()", HashMap.class, key, value, name, HashMap.class);
+    bldr.addStatement("final $T<$T, $T> $L = new $T<>()", LinkedHashMap.class, key, value, name, LinkedHashMap.class);
     bldr.addStatement("$T $LObj = result.getObject($S)", JSONObjectHandle.class, method.getSimpleName(), method.getSimpleName());
     bldr.add("$LObj.keySet().stream()\n", method.getSimpleName());
     bldr.indent();

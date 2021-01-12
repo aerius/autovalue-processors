@@ -16,16 +16,16 @@
  */
 package nl.aerius.wui.parser.convenience;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import nl.aerius.wui.parser.JsonMapInitializer;
 import nl.aerius.wui.parser.JsonMapParser;
 
 @JsonMapInitializer
-public class HashMapInitializer implements JsonMapParser<HashMap<?, ?>> {
+public class LinkedHashMapInitializer implements JsonMapParser<LinkedHashMap<?, ?>> {
   @Override
-  public HashMap<?, ?> create(final Map<?, ?> map) {
-    return new HashMap<>(map);
+  public LinkedHashMap<?, ?> create(final Map<?, ?> lst) {
+    return (LinkedHashMap<?, ?>) lst;
   }
 }
